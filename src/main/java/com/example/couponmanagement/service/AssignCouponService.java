@@ -4,6 +4,10 @@ import com.example.couponmanagement.entity.Coupon;
 import com.example.couponmanagement.repository.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.StaleObjectStateException;
+import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,12 +18,22 @@ import java.util.Optional;
 public class AssignCouponService {
     private final CouponRepository couponRepository;
 
-    public boolean assignCoupon(Coupon coupon, String userName) {
+    @Retryable(include = {ConcurrencyFailureException.class, StaleObjectStateException.class},
+            backoff = @Backoff(delay = 100L, multiplier = 3), maxAttempts = 5)
+    public boolean assignCoupon(long id, String username) {
         boolean isSuccessfullyAssigned = true;
-        String couponName = coupon.getName();
-        Optional<Coupon> foundedCoupon = couponRepository.findByName(couponName);
+        Optional<Coupon> foundedCoupon = couponRepository.findById(id);
         if (foundedCoupon.isPresent()) {
-            couponRepository.setCouponAssignCountByCouponName(foundedCoupon.get().getName(), foundedCoupon.get().getAssignCount() + 1);
+            Coupon coupon = foundedCoupon.get();
+            int assignCount = coupon.getAssignCount();
+            if (assignCount > 0) {
+                int newAssignCount = assignCount - 1;
+                coupon.setActive(newAssignCount != 0);
+                coupon.setAssignCount(newAssignCount);
+                couponRepository.saveAndFlush(coupon);
+            } else {
+                isSuccessfullyAssigned = false;
+            }
         } else {
             isSuccessfullyAssigned = false;
         }

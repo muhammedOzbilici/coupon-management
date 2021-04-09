@@ -22,9 +22,9 @@ class CouponRepositoryTest {
     @Test
     void it_should_find_by_name() {
         //arrange
-        Coupon savedCoupon = new Coupon(1L, "yılbaşı", 20, 100, true);
+        Coupon savedCoupon = new Coupon(1L, "yılbaşı", 20, 100, true, 0);
         jdbcTemplate.update(
-                "INSERT INTO coupon (id, name, discountQuantity, assignCount, isActive) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO coupon (id, name, discountQuantity, assignCount, isActive) VALUES (?, ?, ?, ?, ?,?)",
                 savedCoupon.getId(), savedCoupon.getName(), savedCoupon.getDiscountQuantity(), savedCoupon.getAssignCount(),
                 savedCoupon.isActive()
         );
@@ -37,12 +37,4 @@ class CouponRepositoryTest {
         assertThat(coupon).isEqualToComparingFieldByField(coupon);
     }
 
-    @Test
-    void it_should_assign_coupon_by_coupon_name() {
-        //arrange
-
-        //act
-
-        //assert
-    }
 }

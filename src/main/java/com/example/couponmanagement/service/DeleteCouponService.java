@@ -14,9 +14,9 @@ import java.util.Optional;
 public class DeleteCouponService {
     private final CouponRepository couponRepository;
 
-    public boolean deleteCoupon(String couponName) {
+    public boolean deleteCoupon(Long id) {
         boolean isSuccessfullyDeleted = true;
-        Optional<Coupon> foundedCoupon = couponRepository.findByName(couponName);
+        Optional<Coupon> foundedCoupon = couponRepository.findById(id);
         if (foundedCoupon.isPresent()) {
             couponRepository.delete(foundedCoupon.get());
         } else {

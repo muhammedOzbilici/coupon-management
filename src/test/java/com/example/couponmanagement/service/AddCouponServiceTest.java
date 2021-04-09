@@ -29,7 +29,7 @@ class AddCouponServiceTest extends BaseMockitoTest {
     @Test
     public void it_should_save_coupon() {
         //given
-        Coupon coupon = new Coupon(1L, "yılbaşı", 20, 100, true);
+        Coupon coupon = new Coupon(1L, "yılbaşı", 20, 100, true,0);
 
         //when
         addCouponService.addCoupon(coupon);
